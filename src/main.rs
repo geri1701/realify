@@ -26,4 +26,9 @@ fn main() {
             table.insert(k.into(), v.into());
         }
     }
+    if table.contains_key(&cli.name) {
+        println!("{}", table.get(&cli.name).unwrap());
+    } else {
+        eprintln!("Error: Your config doesn't contain the key {}", cli.name);
+    }
 }
