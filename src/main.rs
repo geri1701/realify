@@ -1,6 +1,7 @@
 use clap::Parser;
 use std::collections::HashMap;
 use std::fs;
+use std::io::Write;
 
 #[derive(Parser)]
 #[command(name = "Realify")]
@@ -58,5 +59,20 @@ mod tests {
                 "Error: Your config doesn't contain the key baz"
             ))
         );
+    }
+
+    #[test]
+    fn test_read_config_file() {
+        let mut config_file = std::fs::File::create("test_config.txt").unwrap();
+        let data = "key1 value1\nkey2 value2\nkey3 value3\n";
+        config_file.write_all(data.as_bytes()).unwrap();
+        let result = read_config_file("test_config.txt");
+        let mut expected = std::collections::HashMap::new();
+        expected.insert(String::from("key1"), String::from("value1"));
+        expected.insert(String::from("key2"), String::from("value2"));
+        expected.insert(String::from("key3"), String::from("value3"));
+        assert_eq!(result, Ok(expected));
+        // Cleanup
+        std::fs::remove_file("test_config.txt").unwrap();
     }
 }
