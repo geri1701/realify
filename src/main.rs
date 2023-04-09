@@ -38,3 +38,25 @@ fn main() {
         Err(err) => eprintln!("{}", err),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_realify() {
+        let mut table = HashMap::new();
+        table.insert(String::from("foo"), String::from("bar"));
+
+        let result = realify(&table, "foo");
+        assert_eq!(result, Ok(String::from("bar")));
+
+        let result = realify(&table, "baz");
+        assert_eq!(
+            result,
+            Err(String::from(
+                "Error: Your config doesn't contain the key baz"
+            ))
+        );
+    }
+}
