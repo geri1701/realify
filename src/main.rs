@@ -1,7 +1,6 @@
 use clap::Parser;
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::prelude::*;
+use std::fs;
 
 #[derive(Parser)]
 #[command(name = "Realify")]
@@ -14,7 +13,6 @@ struct Cli {
     #[arg(long)]
     name: String,
 }
-
 fn read_config_file(config: &str) -> Result<HashMap<String, String>, String> {
     let contents = fs::read_to_string(config).map_err(|e| e.to_string())?;
     let mut table = HashMap::new();
@@ -26,15 +24,16 @@ fn read_config_file(config: &str) -> Result<HashMap<String, String>, String> {
     Ok(table)
 }
 
-fn realify(config: &str, name: &str) -> Result<String, String> {
-    read_config_file(config)
-        .and_then(|table| table.get(name).cloned().ok_or_else(|| format!("Error: Your config doesn't contain the key {}", name)))
+fn realify(table: &HashMap<String, String>, name: &str) -> Result<String, String> {
+    table
+        .get(name)
+        .cloned()
+        .ok_or_else(|| format!("Error: Your config doesn't contain the key {}", name))
 }
-
 
 fn main() {
     let cli = Cli::parse();
-    match realify(&cli.config, &cli.name) {
+    match read_config_file(&cli.config).and_then(|table| realify(&table, &cli.name)) {
         Ok(value) => println!("{}", value),
         Err(err) => eprintln!("{}", err),
     }
