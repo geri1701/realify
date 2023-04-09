@@ -1,7 +1,6 @@
 use clap::Parser;
 use std::collections::HashMap;
 use std::fs;
-use std::io::Write;
 
 #[derive(Parser)]
 #[command(name = "Realify")]
@@ -43,6 +42,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Write;
 
     #[test]
     fn test_realify() {
