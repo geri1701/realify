@@ -15,27 +15,22 @@ struct Cli {
     name: String,
 }
 
-fn realify(config: &str, name: &str) -> Result<String, String> {
-    let mut config_file = File::open(config).map_err(|e| e.to_string())?;
-    let mut table = HashMap::<String, String>::new();
-    let mut contents = String::new();
-    config_file
-        .read_to_string(&mut contents)
-        .map_err(|e| e.to_string())?;
+fn read_config_file(config: &str) -> Result<HashMap<String, String>, String> {
+    let contents = fs::read_to_string(config).map_err(|e| e.to_string())?;
+    let mut table = HashMap::new();
     for line in contents.lines() {
-        if let Some((k, v)) = line.split_once(" ") {
+        if let Some((k, v)) = line.split_once(' ') {
             table.insert(k.into(), v.into());
         }
     }
-    if let Some(value) = table.get(name) {
-        Ok(value.to_string())
-    } else {
-        Err(format!(
-            "Error: Your config doesn't contain the key {}",
-            name
-        ))
-    }
+    Ok(table)
 }
+
+fn realify(config: &str, name: &str) -> Result<String, String> {
+    read_config_file(config)
+        .and_then(|table| table.get(name).cloned().ok_or_else(|| format!("Error: Your config doesn't contain the key {}", name)))
+}
+
 
 fn main() {
     let cli = Cli::parse();
